@@ -7,7 +7,7 @@ import { ref, watch } from 'vue';
 import { Page, useVbenDrawer } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
 
-import { Button, message, Modal, Tree } from 'antdv-next';
+import { Button, message, Modal, Tree } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getMenuList } from '#/api/system/menu';
@@ -98,7 +98,7 @@ function onDelete(row: SystemRoleApi.SystemRole) {
   });
 }
 
-/** 将菜单树转换为 antdv-next Tree 所需的格式 */
+/** 将菜单树转换为 ant-design-vue Tree 所需的格式 */
 function convertMenuToTreeData(
   menus: any[],
 ): { children: any[]; key: number; title: string }[] {

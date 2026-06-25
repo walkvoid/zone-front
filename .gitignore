@@ -52,6 +52,13 @@ vite.config.ts.*
 .history
 .cursor
 
+# Upstream (not needed for zone-admin)
+playground/
+docs/
+apps/backend-mock/
+.github/
+tea.yaml
+
 # AI
 .agent
 .agents

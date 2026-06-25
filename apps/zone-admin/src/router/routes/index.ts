@@ -34,4 +34,26 @@ const coreRouteNames = traverseTreeValues(coreRoutes, (route) => route.name);
 
 /** 有权限校验的路由列表，包含动态路由和静态路由 */
 const accessRoutes = [...dynamicRoutes, ...staticRoutes];
+
+/** 所有可用于菜单 component 字段的视图组件路径 */
+export const componentKeys: string[] = [
+  // 系统管理
+  'views/system/menu/list',
+  'views/system/role/list',
+  'views/system/user/list',
+  // 仪表盘
+  'views/dashboard/analytics/index',
+  'views/dashboard/workspace/index',
+  // 金融管理
+  'views/finance/stock-indicator/index',
+  'views/finance/fund-indicator/index',
+  'views/finance/macro-indicator/index',
+  'views/finance/stock/detail',
+  // Demos
+  'views/demos/antd/index',
+  // 核心页面
+  'views/_core/about/index',
+  'views/_core/profile/index',
+];
+
 export { accessRoutes, coreRouteNames, routes };

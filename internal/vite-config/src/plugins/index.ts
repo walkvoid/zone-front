@@ -132,7 +132,7 @@ async function loadApplicationPlugins(
         return [
           viteVueI18nPlugin({
             compositionOnly: true,
-            fullInstall: true,
+            fullInstall: false,
             runtimeOnly: true,
           }),
         ];
