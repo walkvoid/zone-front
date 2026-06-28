@@ -73,7 +73,7 @@ function generateMenus(
       icon,
       name,
       query,
-      order,
+      order: order ?? 0,
       parent: route.parent,
       parents: route.parents,
       path: resultPath,
@@ -82,8 +82,8 @@ function generateMenus(
     };
   });
 
-  // 对菜单进行排序，避免order=0时被替换成999的问题
-  menus = sortTree(menus, (a, b) => (a?.order ?? 999) - (b?.order ?? 999));
+  // 对菜单进行排序（与数据库 sort 字段升序一致）
+  menus = sortTree(menus, (a, b) => (a.order ?? 0) - (b.order ?? 0));
 
   // 过滤掉隐藏的菜单项
   return filterTree(menus, (menu) => !!menu.show);

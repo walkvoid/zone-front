@@ -1,4 +1,7 @@
+import type { VxePageResult } from '#/api/types/page';
+
 import { requestClient } from '#/api/request';
+import { fetchPage } from '#/api/types/page';
 
 export namespace SystemUserApi {
   export interface SystemUser {
@@ -19,10 +22,26 @@ export namespace SystemUserApi {
 }
 
 /**
- * 获取用户列表
+ * 获取用户列表（全量）
  */
 async function getUserList() {
   return requestClient.get<Array<SystemUserApi.SystemUser>>('/user/list');
+}
+
+/**
+ * 分页查询用户列表
+ */
+async function getUserPage(params: {
+  currentPage: number;
+  pageSize: number;
+  parameter?: Partial<SystemUserApi.SystemUser>;
+}): Promise<VxePageResult<SystemUserApi.SystemUser>> {
+  return fetchPage<SystemUserApi.SystemUser>(
+    '/user/page',
+    params.currentPage,
+    params.pageSize,
+    params.parameter,
+  );
 }
 
 /**
@@ -72,6 +91,7 @@ export {
   createUser,
   deleteUser,
   getUserList,
+  getUserPage,
   resetPassword,
   updateUser,
   updateUserStatus,

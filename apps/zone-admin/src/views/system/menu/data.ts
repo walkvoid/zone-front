@@ -29,6 +29,7 @@ export function useColumns(): VxeTableGridColumns<SystemMenuApi.SystemMenu> {
       fixed: 'left',
       slots: { default: 'title' },
       title: $t('system.menu.menuTitle'),
+      treeNode: true,
       width: 250,
     },
     {
@@ -71,14 +72,20 @@ export function useColumns(): VxeTableGridColumns<SystemMenuApi.SystemMenu> {
       title: $t('system.menu.component'),
     },
     {
-      cellRender: { name: 'CellTag' },
-      field: 'status',
-      title: $t('system.menu.status'),
+      cellRender: {
+        name: 'CellTag',
+        options: [
+          { color: 'success', label: $t('system.menu.visibleYes'), value: 1 },
+          { color: 'error', label: $t('system.menu.visibleNo'), value: 0 },
+        ],
+      },
+      field: 'visible',
+      title: $t('system.menu.visible'),
       width: 100,
     },
     {
       align: 'center',
-      field: 'meta.order',
+      field: 'sort',
       title: '排序',
       width: 80,
     },

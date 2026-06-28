@@ -123,7 +123,7 @@ const schema: VbenFormSchema[] = [
       placeholder: '数字越小越靠前',
     },
     defaultValue: 0,
-    fieldName: 'meta.order',
+    fieldName: 'sort',
     label: '排序',
   },
   {
@@ -265,14 +265,14 @@ const schema: VbenFormSchema[] = [
     componentProps: {
       buttonStyle: 'solid',
       options: [
-        { label: $t('common.enabled'), value: 1 },
-        { label: $t('common.disabled'), value: 0 },
+        { label: $t('system.menu.visibleYes'), value: 1 },
+        { label: $t('system.menu.visibleNo'), value: 0 },
       ],
       optionType: 'button',
     },
     defaultValue: 1,
-    fieldName: 'status',
-    label: $t('system.menu.status'),
+    fieldName: 'visible',
+    label: $t('system.menu.visible'),
   },
   {
     component: 'Select',
@@ -385,21 +385,6 @@ const schema: VbenFormSchema[] = [
       },
       triggerFields: ['type'],
     },
-    fieldName: 'meta.hideInMenu',
-    renderComponentContent() {
-      return {
-        default: () => $t('system.menu.hideInMenu'),
-      };
-    },
-  },
-  {
-    component: 'Checkbox',
-    dependencies: {
-      show: (values) => {
-        return ['catalog', 'menu'].includes(values.type);
-      },
-      triggerFields: ['type'],
-    },
     fieldName: 'meta.hideChildrenInMenu',
     renderComponentContent() {
       return {
@@ -462,6 +447,9 @@ const [Drawer, drawerApi] = useVbenDrawer({
         data.linkSrc = data.meta?.iframeSrc;
       }
       if (data) {
+        if (data.visible === undefined) {
+          data.visible = data.meta?.hideInMenu ? 0 : 1;
+        }
         formData.value = data;
         formApi.setValues(formData.value);
         titleSuffix.value = formData.value.meta?.title
@@ -491,7 +479,7 @@ async function onSubmit() {
     delete data.linkSrc;
     try {
       await (formData.value?.id
-        ? updateMenu(formData.value.id, data)
+        ? updateMenu(String(formData.value.id), data)
         : createMenu(data));
       drawerApi.close();
       emit('success');

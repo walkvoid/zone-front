@@ -77,20 +77,45 @@ function convertRoutes(
       route.component = layoutMap[component];
       // 页面组件转换
     } else if (component) {
-      const normalizePath = normalizeViewPath(component);
-      const pageKey = normalizePath.endsWith('.vue')
-        ? normalizePath
-        : `${normalizePath}.vue`;
-      if (pageMap[pageKey]) {
-        route.component = pageMap[pageKey];
-      } else {
-        console.error(`route component is invalid: ${pageKey}`, route);
-        route.component = pageMap['/_core/fallback/not-found.vue'];
-      }
+      route.component = resolvePageComponent(component, pageMap);
     }
 
     return route;
   });
+}
+
+function resolvePageComponent(component: string, pageMap: ComponentRecordType) {
+  const normalizePath = normalizeViewPath(component);
+  const pageKey = normalizePath.endsWith('.vue')
+    ? normalizePath
+    : `${normalizePath}.vue`;
+
+  const candidates = new Set<string>([pageKey]);
+
+  if (pageKey.endsWith('/index.vue')) {
+    candidates.add(pageKey.replace(/\/index\.vue$/, '/list.vue'));
+  } else if (pageKey.endsWith('/list.vue')) {
+    candidates.add(pageKey.replace(/\/list\.vue$/, '/index.vue'));
+  }
+
+  // 后端 url /ai/ai-model 对应前端 views/ai/model/list.vue
+  if (pageKey.includes('/ai/ai-model/')) {
+    candidates.add(pageKey.replace('/ai/ai-model/', '/ai/model/'));
+    candidates.add(
+      pageKey
+        .replace('/ai/ai-model/', '/ai/model/')
+        .replace('/index.vue', '/list.vue'),
+    );
+  }
+
+  for (const key of candidates) {
+    if (pageMap[key]) {
+      return pageMap[key];
+    }
+  }
+
+  console.error(`route component is invalid: ${pageKey}`, [...candidates]);
+  return pageMap['/_core/fallback/not-found.vue'];
 }
 
 function normalizeViewPath(path: string): string {

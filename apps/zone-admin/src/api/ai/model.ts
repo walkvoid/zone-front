@@ -1,4 +1,7 @@
+import type { VxePageResult } from '#/api/types/page';
+
 import { requestClient } from '#/api/request';
+import { fetchPage } from '#/api/types/page';
 
 export interface AiModel {
   id?: string;
@@ -16,8 +19,17 @@ export interface AiModel {
   updateTime?: string;
 }
 
-export async function getAiModelList(params?: any) {
-  return requestClient.get<AiModel[]>('/ai-model/page', { params });
+export async function getAiModelPage(params: {
+  currentPage: number;
+  pageSize: number;
+  parameter?: Partial<AiModel>;
+}): Promise<VxePageResult<AiModel>> {
+  return fetchPage<AiModel>(
+    '/ai-model/page',
+    params.currentPage,
+    params.pageSize,
+    params.parameter,
+  );
 }
 
 export async function getAiModelById(id: string) {

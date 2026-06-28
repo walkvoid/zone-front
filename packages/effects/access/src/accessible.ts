@@ -190,11 +190,13 @@ function mergeRoutesByName(
       const routeChildren = route.children ?? [];
 
       const merged = {
+        ...existing,
         ...route,
-        ...existing, // keep backend as base
+        // 页面组件以前端静态路由为准，后端仅提供菜单元数据（含 sort/order）
+        component: route.component ?? existing.component,
         meta: {
           ...route.meta,
-          ...existing.meta, // backend meta wins on conflicts
+          ...existing.meta,
         },
       } as RouteRecordRaw;
 
@@ -203,7 +205,8 @@ function mergeRoutesByName(
       }
 
       Object.assign(existing, merged);
-    } else {
+    } else if (route.meta?.hideInMenu) {
+      // 纯前端隐藏路由（如个人中心）仍需注册，但不影响侧边栏菜单树
       const clone = { ...route } as RouteRecordRaw;
       result.push(clone);
       if (clone.name && isString(clone.name)) {

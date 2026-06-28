@@ -1,4 +1,4 @@
-import { initPreferences } from '@vben/preferences';
+import { initPreferences, updatePreferences } from '@vben/preferences';
 import { unmountGlobalLoading } from '@vben/utils';
 
 import { overridesPreferences, preferencesExtension } from './preferences';
@@ -18,6 +18,13 @@ async function initApplication() {
     extension: preferencesExtension,
     namespace,
     overrides: overridesPreferences,
+  });
+
+  // mixed：后端提供菜单排序，前端静态路由提供页面组件
+  updatePreferences({
+    app: {
+      accessMode: 'mixed',
+    },
   });
 
   // 启动应用并挂载

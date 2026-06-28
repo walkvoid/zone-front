@@ -1,19 +1,16 @@
 <script lang="ts" setup>
-import type {
-  OnActionClickParams,
-  VxeTableGridOptions,
-} from '#/adapter/vxe-table';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { PromptTemplate } from '#/api/ai/prompt-template';
 
 import { Page, useVbenDrawer } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
 
-import { Button, message } from 'antdv-next';
+import { Button, message, Modal } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   deletePromptTemplate,
-  getPromptTemplateList,
+  getPromptTemplatePage,
 } from '#/api/ai/prompt-template';
 import { $t } from '#/locales';
 
@@ -27,13 +24,17 @@ const [FormDrawer, formDrawerApi] = useVbenDrawer({
 
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
-    columns: useColumns(onActionClick),
+    columns: useColumns(),
     height: 'auto',
     keepSource: true,
-    pagerConfig: { enabled: false },
+    pagerConfig: { enabled: true },
     proxyConfig: {
       ajax: {
-        query: async () => await getPromptTemplateList(),
+        query: async ({ page }) =>
+          await getPromptTemplatePage({
+            currentPage: page.currentPage,
+            pageSize: page.pageSize,
+          }),
       },
     },
     rowConfig: { keyField: 'id' },
@@ -41,46 +42,43 @@ const [Grid, gridApi] = useVbenVxeGrid({
   } as VxeTableGridOptions,
 });
 
-function onActionClick({ code, row }: OnActionClickParams<PromptTemplate>) {
-  switch (code) {
-    case 'delete': {
-      onDelete(row);
-      break;
-    }
-    case 'edit': {
-      onEdit(row);
-      break;
-    }
-  }
-}
-
 function onRefresh() {
   gridApi.query();
 }
+
 function onCreate() {
   formDrawerApi.setData({}).open();
 }
+
 function onEdit(row: PromptTemplate) {
   formDrawerApi.setData(row).open();
 }
 
 function onDelete(row: PromptTemplate) {
-  const templateId = row.id;
-  if (templateId === undefined || templateId === null) return;
-  const hideLoading = message.loading({
-    content: $t('ui.actionMessage.deleting', [row.templateName]),
-    duration: 0,
-    key: 'action_process_msg',
-  });
-  deletePromptTemplate(templateId)
-    .then(() => {
-      message.success({
-        content: $t('ui.actionMessage.deleteSuccess', [row.templateName]),
-        key: 'action_process_msg',
+  const templateName = row.templateName || row.templateCode || '';
+  Modal.confirm({
+    content: $t('ui.actionMessage.deleteConfirm', [templateName]),
+    title: $t('ui.actionTitle.delete', [$t('ai.promptTemplate.title')]),
+    onOk: async () => {
+      const templateId = row.id;
+      if (templateId === undefined || templateId === null) return;
+      const hideLoading = message.loading({
+        content: $t('ui.actionMessage.deleting', [templateName]),
+        duration: 0,
+        key: 'prompt_template_delete_msg',
       });
-      onRefresh();
-    })
-    .catch(() => hideLoading());
+      try {
+        await deletePromptTemplate(String(templateId));
+        message.success({
+          content: $t('ui.actionMessage.deleteSuccess', [templateName]),
+          key: 'prompt_template_delete_msg',
+        });
+        onRefresh();
+      } catch {
+        hideLoading();
+      }
+    },
+  });
 }
 </script>
 
@@ -93,6 +91,16 @@ function onDelete(row: PromptTemplate) {
           <Plus class="size-5" />
           {{ $t('ai.promptTemplate.createTemplate') }}
         </Button>
+      </template>
+      <template #action="{ row }">
+        <div class="flex items-center justify-center gap-1">
+          <Button size="small" type="link" @click="onEdit(row)">
+            {{ $t('common.edit') }}
+          </Button>
+          <Button size="small" type="link" danger @click="onDelete(row)">
+            {{ $t('common.delete') }}
+          </Button>
+        </div>
       </template>
     </Grid>
   </Page>

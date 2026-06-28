@@ -1,11 +1,9 @@
-import type { OnActionClickFn, VxeTableGridColumns } from '#/adapter/vxe-table';
+import type { VxeTableGridColumns } from '#/adapter/vxe-table';
 import type { AiModel } from '#/api/ai/model';
 
 import { $t } from '#/locales';
 
-export function useColumns(
-  onActionClick: OnActionClickFn<AiModel>,
-): VxeTableGridColumns<AiModel> {
+export function useColumns(): VxeTableGridColumns<AiModel> {
   return [
     {
       align: 'left',
@@ -57,18 +55,10 @@ export function useColumns(
       width: 80,
     },
     {
-      align: 'right',
-      cellRender: {
-        attrs: {
-          nameField: 'modelName',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: ['edit', 'delete'],
-      },
+      align: 'center',
       field: 'operation',
       fixed: 'right',
-      headerAlign: 'center',
+      slots: { default: 'action' },
       title: $t('system.menu.operation'),
       width: 140,
     },

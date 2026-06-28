@@ -1,17 +1,14 @@
 <script lang="ts" setup>
-import type {
-  OnActionClickParams,
-  VxeTableGridOptions,
-} from '#/adapter/vxe-table';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { AiModel } from '#/api/ai/model';
 
 import { Page, useVbenDrawer } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
 
-import { Button, message } from 'antdv-next';
+import { Button, message, Modal } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { deleteAiModel, getAiModelList } from '#/api/ai/model';
+import { deleteAiModel, getAiModelPage } from '#/api/ai/model';
 import { $t } from '#/locales';
 
 import { useColumns } from './data';
@@ -24,13 +21,17 @@ const [FormDrawer, formDrawerApi] = useVbenDrawer({
 
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
-    columns: useColumns(onActionClick),
+    columns: useColumns(),
     height: 'auto',
     keepSource: true,
-    pagerConfig: { enabled: false },
+    pagerConfig: { enabled: true },
     proxyConfig: {
       ajax: {
-        query: async () => await getAiModelList(),
+        query: async ({ page }) =>
+          await getAiModelPage({
+            currentPage: page.currentPage,
+            pageSize: page.pageSize,
+          }),
       },
     },
     rowConfig: { keyField: 'id' },
@@ -38,46 +39,43 @@ const [Grid, gridApi] = useVbenVxeGrid({
   } as VxeTableGridOptions,
 });
 
-function onActionClick({ code, row }: OnActionClickParams<AiModel>) {
-  switch (code) {
-    case 'delete': {
-      onDelete(row);
-      break;
-    }
-    case 'edit': {
-      onEdit(row);
-      break;
-    }
-  }
-}
-
 function onRefresh() {
   gridApi.query();
 }
+
 function onCreate() {
   formDrawerApi.setData({}).open();
 }
+
 function onEdit(row: AiModel) {
   formDrawerApi.setData(row).open();
 }
 
 function onDelete(row: AiModel) {
-  const modelId = row.id;
-  if (modelId === undefined || modelId === null) return;
-  const hideLoading = message.loading({
-    content: $t('ui.actionMessage.deleting', [row.modelName]),
-    duration: 0,
-    key: 'action_process_msg',
-  });
-  deleteAiModel(modelId)
-    .then(() => {
-      message.success({
-        content: $t('ui.actionMessage.deleteSuccess', [row.modelName]),
-        key: 'action_process_msg',
+  const modelName = row.modelName || row.modelCode || '';
+  Modal.confirm({
+    content: $t('ui.actionMessage.deleteConfirm', [modelName]),
+    title: $t('ui.actionTitle.delete', [$t('ai.model.title')]),
+    onOk: async () => {
+      const modelId = row.id;
+      if (modelId === undefined || modelId === null) return;
+      const hideLoading = message.loading({
+        content: $t('ui.actionMessage.deleting', [modelName]),
+        duration: 0,
+        key: 'ai_model_delete_msg',
       });
-      onRefresh();
-    })
-    .catch(() => hideLoading());
+      try {
+        await deleteAiModel(String(modelId));
+        message.success({
+          content: $t('ui.actionMessage.deleteSuccess', [modelName]),
+          key: 'ai_model_delete_msg',
+        });
+        onRefresh();
+      } catch {
+        hideLoading();
+      }
+    },
+  });
 }
 </script>
 
@@ -90,6 +88,16 @@ function onDelete(row: AiModel) {
           <Plus class="size-5" />
           {{ $t('ai.model.createModel') }}
         </Button>
+      </template>
+      <template #action="{ row }">
+        <div class="flex items-center justify-center gap-1">
+          <Button size="small" type="link" @click="onEdit(row)">
+            {{ $t('common.edit') }}
+          </Button>
+          <Button size="small" type="link" danger @click="onDelete(row)">
+            {{ $t('common.delete') }}
+          </Button>
+        </div>
       </template>
     </Grid>
   </Page>

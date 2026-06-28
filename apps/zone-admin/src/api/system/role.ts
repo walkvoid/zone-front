@@ -1,4 +1,7 @@
+import type { VxePageResult } from '#/api/types/page';
+
 import { requestClient } from '#/api/request';
+import { fetchPage } from '#/api/types/page';
 
 export namespace SystemRoleApi {
   export interface SystemRole {
@@ -22,10 +25,26 @@ export namespace SystemRoleApi {
 }
 
 /**
- * 获取角色列表
+ * 获取角色列表（全量）
  */
 async function getRoleList() {
   return requestClient.get<Array<SystemRoleApi.SystemRole>>('/role/list');
+}
+
+/**
+ * 分页查询角色列表
+ */
+async function getRolePage(params: {
+  currentPage: number;
+  pageSize: number;
+  parameter?: Partial<SystemRoleApi.SystemRole>;
+}): Promise<VxePageResult<SystemRoleApi.SystemRole>> {
+  return fetchPage<SystemRoleApi.SystemRole>(
+    '/role/page',
+    params.currentPage,
+    params.pageSize,
+    params.parameter,
+  );
 }
 
 /**
@@ -77,5 +96,6 @@ export {
   deleteRole,
   getRoleList,
   getRoleMenus,
+  getRolePage,
   updateRole,
 };

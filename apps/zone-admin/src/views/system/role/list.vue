@@ -15,8 +15,8 @@ import { getMenuList } from '#/api/system/menu';
 import {
   assignRoleMenus,
   deleteRole,
-  getRoleList,
   getRoleMenus,
+  getRolePage,
 } from '#/api/system/role';
 import { $t } from '#/locales';
 
@@ -34,12 +34,15 @@ const [Grid, gridApi] = useVbenVxeGrid({
     height: 'auto',
     keepSource: true,
     pagerConfig: {
-      enabled: false,
+      enabled: true,
     },
     proxyConfig: {
       ajax: {
-        query: async () => {
-          return await getRoleList();
+        query: async ({ page }) => {
+          return await getRolePage({
+            currentPage: page.currentPage,
+            pageSize: page.pageSize,
+          });
         },
       },
     },

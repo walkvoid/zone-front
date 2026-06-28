@@ -12,7 +12,7 @@ import { Button, Input, message, Modal } from 'antdv-next';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   deleteUser,
-  getUserList,
+  getUserPage,
   resetPassword,
   updateUserStatus,
 } from '#/api/system/user';
@@ -32,12 +32,15 @@ const [Grid, gridApi] = useVbenVxeGrid({
     height: 'auto',
     keepSource: true,
     pagerConfig: {
-      enabled: false,
+      enabled: true,
     },
     proxyConfig: {
       ajax: {
-        query: async () => {
-          return await getUserList();
+        query: async ({ page }) => {
+          return await getUserPage({
+            currentPage: page.currentPage,
+            pageSize: page.pageSize,
+          });
         },
       },
     },

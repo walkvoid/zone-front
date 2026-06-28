@@ -83,6 +83,10 @@ export namespace SystemMenuApi {
     path: string;
     /** 父级ID */
     pid: string;
+    /** 排序号（对应数据库 sort） */
+    sort?: number;
+    /** 是否可见：1-是，0-否 */
+    visible?: number;
     /** 重定向 */
     redirect?: string;
     /** 菜单类型 */
@@ -134,35 +138,24 @@ async function createMenu(
  * @param data 菜单数据
  */
 async function updateMenu(
-  id: string,
+  id: number | string,
   data: Omit<SystemMenuApi.SystemMenu, 'children' | 'id'>,
 ) {
-  return requestClient.put(`/system/menu/${id}`, data);
+  return requestClient.put(`/system/menu/${String(id)}`, data);
 }
 
 /**
  * 删除菜单
- * @param id 菜单 ID
+ * @param id 菜单 ID（字符串，避免雪花 ID 精度丢失）
  */
-async function deleteMenu(id: string) {
-  return requestClient.delete(`/system/menu/${id}`);
-}
-
-/**
- * 获取菜单分页列表
- */
-async function getMenuPage(params: { page: number; size: number }) {
-  return requestClient.get<{
-    records: SystemMenuApi.SystemMenu[];
-    total: number;
-  }>('/system/menu/page', { params });
+async function deleteMenu(id: number | string) {
+  return requestClient.delete(`/system/menu/${String(id)}`);
 }
 
 export {
   createMenu,
   deleteMenu,
   getMenuList,
-  getMenuPage,
   isMenuNameExists,
   isMenuPathExists,
   updateMenu,

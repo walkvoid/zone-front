@@ -1,4 +1,7 @@
+import type { VxePageResult } from '#/api/types/page';
+
 import { requestClient } from '#/api/request';
+import { fetchPage } from '#/api/types/page';
 
 export interface PromptTemplate {
   id?: string;
@@ -13,10 +16,17 @@ export interface PromptTemplate {
   updateTime?: string;
 }
 
-export async function getPromptTemplateList(params?: any) {
-  return requestClient.get<PromptTemplate[]>('/prompt-template/page', {
-    params,
-  });
+export async function getPromptTemplatePage(params: {
+  currentPage: number;
+  pageSize: number;
+  parameter?: Partial<PromptTemplate>;
+}): Promise<VxePageResult<PromptTemplate>> {
+  return fetchPage<PromptTemplate>(
+    '/prompt-template/page',
+    params.currentPage,
+    params.pageSize,
+    params.parameter,
+  );
 }
 
 export async function getPromptTemplateById(id: string) {

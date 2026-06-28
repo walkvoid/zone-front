@@ -3,14 +3,14 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
 import { Page, useVbenDrawer } from '@vben/common-ui';
 import { IconifyIcon, Plus } from '@vben/icons';
-import { $t } from '@vben/locales';
+import { $t, $te } from '@vben/locales';
 
 import { MenuBadge } from '@vben-core/menu-ui';
 
 import { Button, message, Modal } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { deleteMenu, getMenuPage, SystemMenuApi } from '#/api/system/menu';
+import { deleteMenu, getMenuList, SystemMenuApi } from '#/api/system/menu';
 
 import { useColumns } from './data';
 import Form from './modules/form.vue';
@@ -20,24 +20,51 @@ const [FormDrawer, formDrawerApi] = useVbenDrawer({
   destroyOnClose: true,
 });
 
+function compareMenuOrder(
+  a: SystemMenuApi.SystemMenu,
+  b: SystemMenuApi.SystemMenu,
+) {
+  return (a.sort ?? a.meta?.order ?? 0) - (b.sort ?? b.meta?.order ?? 0);
+}
+
+function flattenMenuTree(
+  menus: SystemMenuApi.SystemMenu[],
+  bucket: SystemMenuApi.SystemMenu[] = [],
+): SystemMenuApi.SystemMenu[] {
+  [...menus].toSorted(compareMenuOrder).forEach((menu) => {
+    const { children, ...current } = menu;
+    bucket.push({
+      ...current,
+      id: String(current.id ?? ''),
+      pid: String(current.pid ?? 0),
+    });
+    if (children?.length) {
+      flattenMenuTree(children, bucket);
+    }
+  });
+  return bucket;
+}
+
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
     columns: useColumns(),
     height: 'auto',
     keepSource: true,
     pagerConfig: {
-      enabled: true,
+      enabled: false,
     },
     proxyConfig: {
       ajax: {
-        query: async ({ page }) => {
-          const result = await getMenuPage({
-            page: page.currentPage,
-            size: page.pageSize,
-          });
-          return result;
+        query: async () => {
+          const tree = await getMenuList();
+          return flattenMenuTree(tree);
         },
       },
+    },
+    treeConfig: {
+      parentField: 'pid',
+      rowField: 'id',
+      transform: true,
     },
     rowConfig: {
       keyField: 'id',
@@ -50,6 +77,14 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
   } as VxeTableGridOptions,
 });
+
+function getMenuTitle(row: SystemMenuApi.SystemMenu) {
+  const title = row.meta?.title || row.name || '';
+  if (!title) {
+    return '';
+  }
+  return $te(title) ? $t(title) : title;
+}
 
 function onRefresh() {
   gridApi.query();
@@ -64,14 +99,14 @@ function onCreate() {
 }
 
 function onCreateChild(row: SystemMenuApi.SystemMenu) {
-  formDrawerApi.setData({ pid: row.id }).open();
+  formDrawerApi.setData({ pid: String(row.id) }).open();
 }
 
 function onDelete(row: SystemMenuApi.SystemMenu) {
   Modal.confirm({
-    content: `确定要删除菜单「${row.name}」吗？`,
+    content: `确定要删除菜单「${getMenuTitle(row) || row.name}」吗？`,
     onOk: async () => {
-      await deleteMenu(row.id);
+      await deleteMenu(String(row.id));
       message.success('删除成功');
       onRefresh();
     },
@@ -103,7 +138,7 @@ function onDelete(row: SystemMenuApi.SystemMenu) {
               class="size-full"
             />
           </div>
-          <span class="flex-auto">{{ $t(row.meta?.title) }}</span>
+          <span class="flex-auto">{{ getMenuTitle(row) }}</span>
           <div class="items-center justify-end"></div>
         </div>
         <MenuBadge

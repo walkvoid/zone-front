@@ -6,15 +6,15 @@ const routes: RouteRecordRaw[] = [
   {
     meta: {
       icon: 'ant-design:robot-outlined',
-      order: 9998,
+      order: 50,
       title: $t('ai.title'),
     },
-    name: 'Ai',
+    name: 'AIManage',
     path: '/ai',
     children: [
       {
         path: '/ai/prompt-template',
-        name: 'AiPromptTemplate',
+        name: 'AIPromptTemplate',
         meta: {
           icon: 'ant-design:file-text-outlined',
           title: $t('ai.promptTemplate.title'),
@@ -23,7 +23,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: '/ai/ai-model',
-        name: 'AiModel',
+        name: 'AIModel',
         meta: {
           icon: 'ant-design:robot-outlined',
           title: $t('ai.model.title'),

@@ -1,11 +1,9 @@
-import type { OnActionClickFn, VxeTableGridColumns } from '#/adapter/vxe-table';
+import type { VxeTableGridColumns } from '#/adapter/vxe-table';
 import type { PromptTemplate } from '#/api/ai/prompt-template';
 
 import { $t } from '#/locales';
 
-export function useColumns(
-  onActionClick: OnActionClickFn<PromptTemplate>,
-): VxeTableGridColumns<PromptTemplate> {
+export function useColumns(): VxeTableGridColumns<PromptTemplate> {
   return [
     {
       align: 'left',
@@ -61,18 +59,10 @@ export function useColumns(
       width: 80,
     },
     {
-      align: 'right',
-      cellRender: {
-        attrs: {
-          nameField: 'templateName',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: ['edit', 'delete'],
-      },
+      align: 'center',
       field: 'operation',
       fixed: 'right',
-      headerAlign: 'center',
+      slots: { default: 'action' },
       title: $t('system.menu.operation'),
       width: 140,
     },
