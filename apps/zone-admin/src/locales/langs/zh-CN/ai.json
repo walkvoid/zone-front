@@ -1,0 +1,48 @@
+{
+  "title": "AI管理",
+  "promptTemplate": {
+    "title": "模板配置",
+    "templateCode": "模板编码",
+    "templateName": "模板名称",
+    "category": "分类",
+    "status": "状态",
+    "description": "描述",
+    "variables": "变量",
+    "templateContent": "模板内容",
+    "createTemplate": "新建模板",
+    "editTemplate": "编辑模板",
+    "stepTask": "任务描述",
+    "stepTaskHint": "告诉AI要做什么：写文案、解题、翻译、数据分析...",
+    "stepFormat": "输出格式",
+    "stepFormatHint": "JSON、表格、分点、短文",
+    "stepRole": "角色设定",
+    "stepRoleHint": "设定身份：老师、程序员、产品经理...",
+    "stepConstraints": "限定要求",
+    "stepConstraintsHint": "风格、字数限制、禁忌词...",
+    "stepContext": "参考资料",
+    "stepContextHint": "补充背景上下文、示例...",
+    "preview": "预览",
+    "stepOptional": "（可选）"
+  },
+  "model": {
+    "title": "模型配置",
+    "modelCode": "模型编码",
+    "modelName": "模型名称",
+    "provider": "供应商",
+    "baseUrl": "API地址",
+    "apiKey": "API密钥",
+    "callCount": "调用次数",
+    "description": "描述",
+    "isEnabled": "是否启用",
+    "priority": "优先级",
+    "configJson": "扩展配置",
+    "createModel": "新建模型",
+    "editModel": "编辑模型",
+    "apiKeyEditHint": "编辑时留空则不修改密钥",
+    "apiKeyMasked": "已配置"
+  },
+  "category": {
+    "SYSTEM": "系统",
+    "USER": "用户"
+  }
+}

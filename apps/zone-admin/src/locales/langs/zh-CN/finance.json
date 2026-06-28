@@ -1,0 +1,15 @@
+{
+  "title": "金融管理",
+  "stockIndicator": {
+    "title": "股票指标"
+  },
+  "fundIndicator": {
+    "title": "基金指标"
+  },
+  "macroIndicator": {
+    "title": "宏观指标"
+  },
+  "stockDetail": {
+    "title": "股票详情"
+  }
+}

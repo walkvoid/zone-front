@@ -1,11 +1,13 @@
 import type { RouteRecordRaw } from 'vue-router';
 
+import { $t } from '#/locales';
+
 const routes: RouteRecordRaw[] = [
   {
     meta: {
       icon: 'ant-design:setting-outlined',
       order: 99,
-      title: '系统管理',
+      title: $t('system.title'),
     },
     name: 'System',
     path: '/system',
@@ -16,7 +18,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('#/views/system/menu/list.vue'),
         meta: {
           icon: 'ant-design:menu-outlined',
-          title: '菜单管理',
+          title: $t('system.menu.title'),
         },
       },
       {
@@ -25,7 +27,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('#/views/system/role/list.vue'),
         meta: {
           icon: 'ant-design:team-outlined',
-          title: '角色管理',
+          title: $t('system.role.title'),
         },
       },
       {
@@ -34,7 +36,16 @@ const routes: RouteRecordRaw[] = [
         component: () => import('#/views/system/user/list.vue'),
         meta: {
           icon: 'ant-design:user-outlined',
-          title: '用户管理',
+          title: $t('system.user.title'),
+        },
+      },
+      {
+        name: 'SystemDept',
+        path: '/system/dept',
+        component: () => import('#/views/system/dept/list.vue'),
+        meta: {
+          icon: 'ant-design:apartment-outlined',
+          title: $t('system.dept.title'),
         },
       },
     ],

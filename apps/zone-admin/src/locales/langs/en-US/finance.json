@@ -1,0 +1,15 @@
+{
+  "title": "Finance",
+  "stockIndicator": {
+    "title": "Stock Indicators"
+  },
+  "fundIndicator": {
+    "title": "Fund Indicators"
+  },
+  "macroIndicator": {
+    "title": "Macro Indicators"
+  },
+  "stockDetail": {
+    "title": "Stock Detail"
+  }
+}

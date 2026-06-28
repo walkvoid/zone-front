@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@vben/access": "workspace:*",
+    "@vben-core/menu-ui": "workspace:*",
     "@vben/common-ui": "workspace:*",
     "@vben/constants": "workspace:*",
     "@vben/hooks": "workspace:*",
@@ -42,6 +43,7 @@
     "@vben/utils": "workspace:*",
     "@vueuse/core": "catalog:",
     "ant-design-vue": "catalog:",
+    "antdv-next": "catalog:",
     "dayjs": "catalog:",
     "pinia": "catalog:",
     "vue": "catalog:",

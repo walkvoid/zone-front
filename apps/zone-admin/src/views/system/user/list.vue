@@ -16,6 +16,7 @@ import {
   resetPassword,
   updateUserStatus,
 } from '#/api/system/user';
+import { $t } from '#/locales';
 
 import { useColumns } from './data';
 import Form from './modules/form.vue';
@@ -52,7 +53,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
   } as VxeTableGridOptions,
 });
 
-// 重置密码相关状态
 const resetPasswordVisible = ref(false);
 const resetPasswordLoading = ref(false);
 const resetPasswordUser = ref<null | SystemUserApi.SystemUser>(null);
@@ -71,19 +71,22 @@ function onEdit(row: SystemUserApi.SystemUser) {
 }
 
 function onDelete(row: SystemUserApi.SystemUser) {
+  const userName = row.username || row.nickname || '';
   Modal.confirm({
-    content: `确定要删除用户「${row.username || row.nickname || ''}」吗？此操作不可恢复。`,
-    title: '删除确认',
+    content: $t('ui.actionMessage.deleteConfirm', [userName]),
+    title: $t('ui.actionTitle.delete', [$t('system.user.name')]),
     onOk: async () => {
       const hideLoading = message.loading({
-        content: '正在删除...',
+        content: $t('ui.actionMessage.deleting', [userName]),
         duration: 0,
         key: 'user_delete_msg',
       });
+      const userId = row.id;
+      if (userId === undefined || userId === null) return;
       try {
-        await deleteUser(row.id!);
+        await deleteUser(userId);
         message.success({
-          content: '删除成功',
+          content: $t('ui.actionMessage.deleteSuccess', [userName]),
           key: 'user_delete_msg',
         });
         onRefresh();
@@ -102,13 +105,16 @@ function onResetPassword(row: SystemUserApi.SystemUser) {
 
 async function handleResetPassword() {
   if (!newPassword.value || newPassword.value.length < 6) {
-    message.warning('密码至少6个字符');
+    message.warning($t('system.user.passwordMinLength'));
     return;
   }
+  const user = resetPasswordUser.value;
+  const userId = user?.id;
+  if (userId === undefined || userId === null) return;
   resetPasswordLoading.value = true;
   try {
-    await resetPassword(resetPasswordUser.value!.id!, newPassword.value);
-    message.success('密码重置成功');
+    await resetPassword(userId, newPassword.value);
+    message.success($t('system.user.resetPasswordSuccess'));
     resetPasswordVisible.value = false;
     onRefresh();
   } finally {
@@ -119,14 +125,24 @@ async function handleResetPassword() {
 function onToggleStatus(row: SystemUserApi.SystemUser) {
   const isEnabled = row.status === '1' || row.status === 'enabled';
   const newStatus = isEnabled ? 0 : 1;
-  const actionText = isEnabled ? '禁用' : '启用';
+  const userName = row.username || row.nickname || '';
 
   Modal.confirm({
-    content: `确定要${actionText}用户「${row.username || row.nickname || ''}」吗？`,
-    title: `${actionText}确认`,
+    content: isEnabled
+      ? $t('system.user.disableConfirm', [userName])
+      : $t('system.user.enableConfirm', [userName]),
+    title: isEnabled
+      ? $t('system.user.disableTitle')
+      : $t('system.user.enableTitle'),
     onOk: async () => {
-      await updateUserStatus(row.id!, newStatus);
-      message.success(`${actionText}成功`);
+      const userId = row.id;
+      if (userId === undefined || userId === null) return;
+      await updateUserStatus(userId, newStatus);
+      message.success(
+        isEnabled
+          ? $t('system.user.disableSuccess')
+          : $t('system.user.enableSuccess'),
+      );
       onRefresh();
     },
   });
@@ -139,42 +155,47 @@ function onToggleStatus(row: SystemUserApi.SystemUser) {
       <template #toolbar-tools>
         <Button type="primary" @click="onCreate">
           <Plus class="size-5" />
-          新增用户
+          {{ $t('system.user.createUser') }}
         </Button>
       </template>
       <template #action="{ row }">
         <div class="flex items-center justify-center gap-1">
-          <Button size="small" type="link" @click="onEdit(row)">编辑</Button>
+          <Button size="small" type="link" @click="onEdit(row)">
+            {{ $t('common.edit') }}
+          </Button>
           <Button size="small" type="link" danger @click="onDelete(row)">
-            删除
+            {{ $t('common.delete') }}
           </Button>
           <Button size="small" type="link" @click="onResetPassword(row)">
-            重置密码
+            {{ $t('system.user.resetPassword') }}
           </Button>
           <Button size="small" type="link" @click="onToggleStatus(row)">
             {{
-              row.status === '1' || row.status === 'enabled' ? '禁用' : '启用'
+              row.status === '1' || row.status === 'enabled'
+                ? $t('system.user.disable')
+                : $t('system.user.enable')
             }}
           </Button>
         </div>
       </template>
     </Grid>
 
-    <!-- 重置密码弹窗 -->
     <Modal
       v-model:open="resetPasswordVisible"
-      title="重置密码"
       :confirm-loading="resetPasswordLoading"
+      :title="$t('system.user.resetPassword')"
       @ok="handleResetPassword"
     >
       <p class="mb-3">
-        为用户「{{
-          resetPasswordUser?.username || resetPasswordUser?.nickname || ''
-        }}」设置新密码：
+        {{
+          $t('system.user.resetPasswordHint', [
+            resetPasswordUser?.username || resetPasswordUser?.nickname || '',
+          ])
+        }}
       </p>
       <Input.Password
         v-model:value="newPassword"
-        placeholder="请输入新密码（至少6个字符）"
+        :placeholder="$t('system.user.resetPasswordPlaceholder')"
       />
     </Modal>
   </Page>

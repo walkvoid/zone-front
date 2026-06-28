@@ -8,6 +8,7 @@ import { useVbenDrawer } from '@vben/common-ui';
 
 import { useVbenForm, z } from '#/adapter/form';
 import { createUser, updateUser } from '#/api/system/user';
+import { $t } from '#/locales';
 
 const emit = defineEmits<{
   success: [];
@@ -19,56 +20,60 @@ const schema: VbenFormSchema[] = [
   {
     component: 'Input',
     fieldName: 'username',
-    label: '用户名',
-    rules: z.string().min(2, '用户名最少2个字符').max(30, '用户名最多30个字符'),
+    label: $t('system.user.name'),
+    rules: z
+      .string()
+      .min(2, $t('system.user.usernameMin'))
+      .max(30, $t('system.user.usernameMax')),
   },
   {
     component: 'Input',
     fieldName: 'nickname',
-    label: '昵称',
+    label: $t('system.user.nickname'),
   },
   {
     component: 'InputPassword',
     dependencies: {
-      show: () => {
-        return !formData.value?.id;
+      show(values) {
+        return !values.id;
       },
+      triggerFields: ['id'],
     },
     fieldName: 'password',
-    help: '新建用户时必填，编辑时留空则不修改密码',
-    label: '密码',
-    rules: z.string().min(6, '密码最少6个字符').optional(),
+    help: $t('system.user.passwordHelp'),
+    label: $t('system.user.password'),
+    rules: z.string().min(6, $t('system.user.passwordMin')).optional(),
   },
   {
     component: 'Input',
     fieldName: 'phone',
-    label: '手机号',
+    label: $t('system.user.phone'),
   },
   {
     component: 'Input',
     fieldName: 'email',
-    label: '邮箱',
+    label: $t('system.user.email'),
   },
   {
     component: 'RadioGroup',
     componentProps: {
       options: [
-        { label: '男', value: 'male' },
-        { label: '女', value: 'female' },
+        { label: $t('system.user.genderMale'), value: 'male' },
+        { label: $t('system.user.genderFemale'), value: 'female' },
       ],
     },
     fieldName: 'gender',
-    label: '性别',
+    label: $t('system.user.gender'),
   },
   {
     component: 'Switch',
     componentProps: {
-      checkedChildren: '启用',
-      unCheckedChildren: '禁用',
+      checkedChildren: $t('common.enabled'),
+      unCheckedChildren: $t('common.disabled'),
     },
     defaultValue: true,
     fieldName: 'status',
-    label: '状态',
+    label: $t('system.user.status'),
   },
 ];
 
@@ -90,6 +95,7 @@ const [Drawer, drawerApi] = useVbenDrawer({
         formData.value = data;
         formApi.setValues(formData.value);
       } else {
+        formData.value = undefined;
         formApi.resetForm();
       }
     }
@@ -103,7 +109,6 @@ async function onSubmit() {
     const data = await formApi.getValues<SystemUserApi.SystemUser>();
     try {
       if (formData.value?.id) {
-        // 编辑时如果没有填写密码，删除密码字段
         if (!data.password) {
           delete data.password;
         }
@@ -120,7 +125,9 @@ async function onSubmit() {
 }
 
 const getDrawerTitle = computed(() =>
-  formData.value?.id ? '编辑用户' : '新增用户',
+  formData.value?.id
+    ? $t('system.user.editUser')
+    : $t('system.user.createUser'),
 );
 </script>
 <template>

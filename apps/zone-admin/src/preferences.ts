@@ -16,8 +16,10 @@ interface WebAntdPreferencesExtension {
  * !!! 更改配置后请清空缓存，否则可能不生效
  */
 export const overridesPreferences = defineOverridesPreferences({
-  // overrides
   app: {
+    /** 菜单与路由由后端 /system/menu/tree 驱动 */
+    accessMode: 'backend',
+    defaultHomePath: '/finance/stock-indicator',
     name: import.meta.env.VITE_APP_TITLE,
   },
 });

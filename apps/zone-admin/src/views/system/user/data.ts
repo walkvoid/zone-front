@@ -1,22 +1,52 @@
 import type { VxeTableGridColumns } from '#/adapter/vxe-table';
 import type { SystemUserApi } from '#/api/system/user';
 
+import { $t } from '#/locales';
+
 export function useColumns(): VxeTableGridColumns<SystemUserApi.SystemUser> {
   return [
     { field: 'id', title: 'ID', width: 80 },
-    { field: 'username', title: '用户名', width: 150 },
-    { field: 'nickname', title: '昵称', width: 150 },
-    { field: 'phone', title: '手机号', width: 150 },
-    { field: 'email', title: '邮箱', width: 200 },
-    { field: 'gender', title: '性别', width: 80 },
-    { field: 'status', title: '状态', width: 100 },
-    { field: 'lastLoginTime', title: '最后登录', width: 180 },
+    {
+      field: 'username',
+      title: $t('system.user.name'),
+      width: 150,
+    },
+    {
+      field: 'nickname',
+      title: $t('system.user.nickname'),
+      width: 150,
+    },
+    {
+      field: 'phone',
+      title: $t('system.user.phone'),
+      width: 150,
+    },
+    {
+      field: 'email',
+      title: $t('system.user.email'),
+      width: 200,
+    },
+    {
+      field: 'gender',
+      title: $t('system.user.gender'),
+      width: 80,
+    },
+    {
+      field: 'status',
+      title: $t('system.user.status'),
+      width: 100,
+    },
+    {
+      field: 'lastLoginTime',
+      title: $t('system.user.lastLoginTime'),
+      width: 180,
+    },
     {
       align: 'center',
       field: 'operation',
       fixed: 'right',
       slots: { default: 'action' },
-      title: '操作',
+      title: $t('system.user.operation'),
       width: 260,
     },
   ];

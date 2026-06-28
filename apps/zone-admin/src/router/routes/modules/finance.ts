@@ -1,11 +1,13 @@
 import type { RouteRecordRaw } from 'vue-router';
 
+import { $t } from '#/locales';
+
 const routes: RouteRecordRaw[] = [
   {
     meta: {
       icon: 'ant-design:fund-outlined',
       order: 60,
-      title: '金融管理',
+      title: $t('finance.title'),
     },
     name: 'FinanceManage',
     path: '/finance',
@@ -17,7 +19,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('#/views/finance/stock-indicator/index.vue'),
         meta: {
           icon: 'ant-design:rise-outlined',
-          title: '股票指标',
+          title: $t('finance.stockIndicator.title'),
         },
       },
       {
@@ -26,7 +28,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('#/views/finance/fund-indicator/index.vue'),
         meta: {
           icon: 'ant-design:account-book-outlined',
-          title: '基金指标',
+          title: $t('finance.fundIndicator.title'),
         },
       },
       {
@@ -35,17 +37,16 @@ const routes: RouteRecordRaw[] = [
         component: () => import('#/views/finance/macro-indicator/index.vue'),
         meta: {
           icon: 'ant-design:global-outlined',
-          title: '宏观指标',
+          title: $t('finance.macroIndicator.title'),
         },
       },
-      // 股票详情页（不在菜单显示）
       {
         name: 'StockDetail',
         path: '/finance/stock/:stockCode',
         component: () => import('#/views/finance/stock/detail.vue'),
         meta: {
           hideInMenu: true,
-          title: '股票详情',
+          title: $t('finance.stockDetail.title'),
         },
       },
     ],

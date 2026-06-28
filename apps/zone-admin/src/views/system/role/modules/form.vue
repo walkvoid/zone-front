@@ -8,6 +8,7 @@ import { useVbenDrawer } from '@vben/common-ui';
 
 import { useVbenForm, z } from '#/adapter/form';
 import { createRole, updateRole } from '#/api/system/role';
+import { $t } from '#/locales';
 
 const emit = defineEmits<{
   success: [];
@@ -19,20 +20,20 @@ const schema: VbenFormSchema[] = [
   {
     component: 'Input',
     fieldName: 'roleCode',
-    label: '角色编码',
+    label: $t('system.role.roleCode'),
     rules: z
       .string()
-      .min(2, '角色编码最少2个字符')
-      .max(50, '角色编码最多50个字符'),
+      .min(2, $t('system.role.roleCodeMin'))
+      .max(50, $t('system.role.roleCodeMax')),
   },
   {
     component: 'Input',
     fieldName: 'roleName',
-    label: '角色名称',
+    label: $t('system.role.roleName'),
     rules: z
       .string()
-      .min(2, '角色名称最少2个字符')
-      .max(50, '角色名称最多50个字符'),
+      .min(2, $t('system.role.roleNameMin'))
+      .max(50, $t('system.role.roleNameMax')),
   },
   {
     component: 'Input',
@@ -41,18 +42,18 @@ const schema: VbenFormSchema[] = [
       rows: 3,
     },
     fieldName: 'description',
-    label: '描述',
-    rules: z.string().max(200, '描述最多200个字符').optional(),
+    label: $t('system.role.description'),
+    rules: z.string().max(200, $t('system.role.descriptionMax')).optional(),
   },
   {
     component: 'Switch',
     componentProps: {
-      checkedChildren: '是',
-      unCheckedChildren: '否',
+      checkedChildren: $t('system.role.yes'),
+      unCheckedChildren: $t('system.role.no'),
     },
     defaultValue: false,
     fieldName: 'isSystem',
-    label: '系统角色',
+    label: $t('system.role.isSystem'),
   },
 ];
 
@@ -74,6 +75,7 @@ const [Drawer, drawerApi] = useVbenDrawer({
         formData.value = data;
         formApi.setValues(formData.value);
       } else {
+        formData.value = undefined;
         formApi.resetForm();
       }
     }
@@ -86,11 +88,8 @@ async function onSubmit() {
     drawerApi.lock();
     const data = await formApi.getValues<SystemRoleApi.SystemRole>();
     try {
-      if (formData.value?.id) {
-        await updateRole({ ...data, id: formData.value.id });
-      } else {
-        await createRole(data);
-      }
+      const roleId = formData.value?.id;
+      await (roleId ? updateRole({ ...data, id: roleId }) : createRole(data));
       drawerApi.close();
       emit('success');
     } finally {
@@ -100,7 +99,9 @@ async function onSubmit() {
 }
 
 const getDrawerTitle = computed(() =>
-  formData.value?.id ? '编辑角色' : '新增角色',
+  formData.value?.id
+    ? $t('system.role.editRole')
+    : $t('system.role.createRole'),
 );
 </script>
 <template>

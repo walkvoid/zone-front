@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { SystemMenuApi } from '#/api/system/menu';
 import type { SystemRoleApi } from '#/api/system/role';
 
 import { ref, watch } from 'vue';
@@ -7,7 +8,7 @@ import { ref, watch } from 'vue';
 import { Page, useVbenDrawer } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
 
-import { Button, message, Modal, Tree } from 'ant-design-vue';
+import { Button, message, Modal, Tree } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getMenuList } from '#/api/system/menu';
@@ -17,17 +18,16 @@ import {
   getRoleList,
   getRoleMenus,
 } from '#/api/system/role';
+import { $t } from '#/locales';
 
 import { useColumns } from './data';
 import Form from './modules/form.vue';
 
-// ====== 表单抽屉 ======
 const [FormDrawer, formDrawerApi] = useVbenDrawer({
   connectedComponent: Form,
   destroyOnClose: true,
 });
 
-// ====== 表格 ======
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
     columns: useColumns(),
@@ -55,11 +55,16 @@ const [Grid, gridApi] = useVbenVxeGrid({
   } as VxeTableGridOptions,
 });
 
-// ====== 菜单分配抽屉 ======
 const menuDrawerVisible = ref(false);
 const menuDrawerRole = ref<null | SystemRoleApi.SystemRole>(null);
-const menuTreeData = ref<any[]>([]);
-const checkedMenuKeys = ref<number[]>([]);
+type MenuTreeNode = {
+  children?: MenuTreeNode[];
+  key: string;
+  title: string;
+};
+
+const menuTreeData = ref<MenuTreeNode[]>([]);
+const checkedMenuKeys = ref<string[]>([]);
 const menuLoading = ref(false);
 
 function onRefresh() {
@@ -75,19 +80,22 @@ function onEdit(row: SystemRoleApi.SystemRole) {
 }
 
 function onDelete(row: SystemRoleApi.SystemRole) {
+  const roleName = row.roleName || row.roleCode || '';
   Modal.confirm({
-    content: `确定要删除角色「${row.roleName || row.roleCode || ''}」吗？此操作不可恢复。`,
-    title: '删除确认',
+    content: $t('ui.actionMessage.deleteConfirm', [roleName]),
+    title: $t('ui.actionTitle.delete', [$t('system.role.name')]),
     onOk: async () => {
       const hideLoading = message.loading({
-        content: '正在删除...',
+        content: $t('ui.actionMessage.deleting', [roleName]),
         duration: 0,
         key: 'role_delete_msg',
       });
+      const roleId = row.id;
+      if (roleId === undefined || roleId === null) return;
       try {
-        await deleteRole(row.id!);
+        await deleteRole(roleId);
         message.success({
-          content: '删除成功',
+          content: $t('ui.actionMessage.deleteSuccess', [roleName]),
           key: 'role_delete_msg',
         });
         onRefresh();
@@ -98,13 +106,12 @@ function onDelete(row: SystemRoleApi.SystemRole) {
   });
 }
 
-/** 将菜单树转换为 ant-design-vue Tree 所需的格式 */
 function convertMenuToTreeData(
-  menus: any[],
-): { children: any[]; key: number; title: string }[] {
+  menus: SystemMenuApi.SystemMenu[],
+): MenuTreeNode[] {
   return menus.map((menu) => {
-    const node: any = {
-      key: menu.id,
+    const node: MenuTreeNode = {
+      key: String(menu.id),
       title: menu.menuName || menu.meta?.title || menu.name || '',
     };
     if (menu.children && menu.children.length > 0) {
@@ -119,14 +126,16 @@ async function onMenuAssign(row: SystemRoleApi.SystemRole) {
   menuDrawerVisible.value = true;
   menuLoading.value = true;
   try {
+    const roleId = row.id;
+    if (roleId === undefined || roleId === null) return;
     const [menus, roleMenuIds] = await Promise.all([
       getMenuList(),
-      getRoleMenus(row.id!),
+      getRoleMenus(roleId),
     ]);
     menuTreeData.value = convertMenuToTreeData(menus);
-    checkedMenuKeys.value = roleMenuIds || [];
+    checkedMenuKeys.value = (roleMenuIds || []).map(String);
   } catch {
-    message.error('加载菜单数据失败');
+    message.error($t('system.role.menuLoadFailed'));
   } finally {
     menuLoading.value = false;
   }
@@ -135,14 +144,16 @@ async function onMenuAssign(row: SystemRoleApi.SystemRole) {
 async function handleMenuAssignSave() {
   if (!menuDrawerRole.value) return;
   const hideLoading = message.loading({
-    content: '正在保存菜单分配...',
+    content: $t('system.role.menuAssigning'),
     duration: 0,
     key: 'menu_assign_msg',
   });
+  const roleId = menuDrawerRole.value.id;
+  if (roleId === undefined || roleId === null) return;
   try {
-    await assignRoleMenus(menuDrawerRole.value.id!, checkedMenuKeys.value);
+    await assignRoleMenus(roleId, checkedMenuKeys.value.map(Number));
     message.success({
-      content: '菜单分配成功',
+      content: $t('system.role.menuAssignSuccess'),
       key: 'menu_assign_msg',
     });
     menuDrawerVisible.value = false;
@@ -167,36 +178,39 @@ watch(menuDrawerVisible, (val) => {
       <template #toolbar-tools>
         <Button type="primary" @click="onCreate">
           <Plus class="size-5" />
-          新增角色
+          {{ $t('system.role.createRole') }}
         </Button>
       </template>
       <template #action="{ row }">
         <div class="flex items-center justify-center gap-1">
-          <Button size="small" type="link" @click="onEdit(row)">编辑</Button>
+          <Button size="small" type="link" @click="onEdit(row)">
+            {{ $t('common.edit') }}
+          </Button>
           <Button size="small" type="link" danger @click="onDelete(row)">
-            删除
+            {{ $t('common.delete') }}
           </Button>
           <Button size="small" type="link" @click="onMenuAssign(row)">
-            菜单分配
+            {{ $t('system.role.menuAssign') }}
           </Button>
         </div>
       </template>
     </Grid>
 
-    <!-- 菜单分配抽屉 -->
     <Modal
       v-model:open="menuDrawerVisible"
-      title="菜单分配"
+      :title="$t('system.role.menuAssign')"
       width="500px"
       @ok="handleMenuAssignSave"
     >
       <div class="mb-3 text-gray-500">
-        为角色「{{
-          menuDrawerRole?.roleName || menuDrawerRole?.roleCode || ''
-        }}」分配菜单权限：
+        {{
+          $t('system.role.menuAssignHint', [
+            menuDrawerRole?.roleName || menuDrawerRole?.roleCode || '',
+          ])
+        }}
       </div>
       <div v-if="menuLoading" class="flex h-40 items-center justify-center">
-        加载中...
+        {{ $t('system.role.menuLoading') }}
       </div>
       <Tree
         v-else

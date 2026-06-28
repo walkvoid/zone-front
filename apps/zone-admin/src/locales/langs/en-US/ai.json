@@ -1,0 +1,47 @@
+{
+  "title": "AI Management",
+  "promptTemplate": {
+    "title": "Prompt Template",
+    "templateCode": "Template Code",
+    "templateName": "Template Name",
+    "category": "Category",
+    "status": "Status",
+    "description": "Description",
+    "variables": "Variables",
+    "templateContent": "Template Content",
+    "createTemplate": "New Template",
+    "editTemplate": "Edit Template",
+    "stepTask": "Task Description",
+    "stepTaskHint": "What do you want AI to do: write, solve, translate, analyze...",
+    "stepFormat": "Output Format",
+    "stepFormatHint": "JSON, table, bullet points, short essay",
+    "stepRole": "Role Setting",
+    "stepRoleHint": "Set a role: teacher, programmer, product manager...",
+    "stepConstraints": "Constraints",
+    "stepConstraintsHint": "Style, word limit, forbidden words...",
+    "stepContext": "References",
+    "stepContextHint": "Background context, examples...",
+    "preview": "Preview",
+    "stepOptional": "(optional)"
+  },
+  "model": {
+    "title": "Model Config",
+    "modelCode": "Model Code",
+    "modelName": "Model Name",
+    "provider": "Provider",
+    "baseUrl": "API URL",
+    "apiKey": "API Key",
+    "callCount": "Call Count",
+    "isEnabled": "Enabled",
+    "priority": "Priority",
+    "configJson": "Extra Config",
+    "createModel": "New Model",
+    "editModel": "Edit Model",
+    "apiKeyEditHint": "Leave blank to keep the existing key when editing",
+    "apiKeyMasked": "Configured"
+  },
+  "category": {
+    "SYSTEM": "System",
+    "USER": "User"
+  }
+}
