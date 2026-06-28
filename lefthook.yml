@@ -71,5 +71,7 @@ post-merge:
 
 commit-msg:
   commands:
+    strip-coauthor:
+      run: sh scripts/git/strip-coauthor-from-msg.sh $1
     commitlint:
       run: pnpm exec commitlint --edit $1
